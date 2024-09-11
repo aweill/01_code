@@ -15,22 +15,22 @@ set type 5 charge -0.945 # O
 
 group Si type 1
 group Al type 2
-group B type 3
+group B  type 3
 group Ca type 4
-group O type 5
+group O  type 5
           
 ##################################################################
 pair_style          buck/coul/long 10.0 10.0          
 kspace_style		ewald 1.0e-5
 
 pair_coeff	    * * 0.00000000 1.000 0.00000000 # others
-pair_coeff      1 3  337.70000 0.290000 0.0000
-pair_coeff      2 2  484.40000 0.350000 0.0000
-pair_coeff      1 5  50306.100 0.161000 46.2978
-pair_coeff      2 5  28538.420 0.172000 34.5778
-pair_coeff      3 5  206941.81 0.124000 35.0018
-pair_coeff      4 5  155667.70 0.178000 42.2597
-pair_coeff      5 5  9022.7900 0.265000 85.0921
+pair_coeff	    1 3  337.70     0.29     0.0		# Si-B
+pair_coeff	    1 5  50306.10   0.161    46.2978	# Si-O
+pair_coeff	    2 5  28538.42   0.172    34.5778	# Al-O
+pair_coeff	    3 3  484.40     0.35     0.0		# B-B
+pair_coeff	    3 5  206941.81  0.124    35.0018	# B-O
+pair_coeff	    4 5  155667.70  0.178    42.2597	# Ca-O
+pair_coeff	    5 5  9022.79    0.265    85.0921	# O-O
 
 neighbor		               2.0 bin
 neigh_modify 		every 1 delay 0 check yes
@@ -84,18 +84,18 @@ thermo				1000
 
 compute msdSi Si msd com yes
 compute msdAl Al msd com yes
-compute msdB B msd com yes
+compute msdB  B  msd com yes
 compute msdCa Ca msd com yes
-compute msdO O msd com yes
+compute msdO  O  msd com yes
 
 compute 			RDF all rdf 1000 1 5 2 5 3 5 4 5 5 5 1 1 2 2 3 3 4 4 1 2 1 3 1 4 2 3 2 4 3 4  #计算1-5号原子对5号原子的径向分布函数
 fix 			2 all ave/time 1 1 1000 c_RDF[*] file RDF.profile mode vector 
 fix outMSD all ave/time 1 1 1000 c_msdSi[4] c_msdAl[4] c_msdB[4] c_msdCa[4] c_msdO[4] start 0 file MSD.average      #output msd with timestep
 dump  1  all custom 1000 md.lammpstrj id type  x y z vx vy vz 
 dump  2  all atom 1000 VMDdata.NPT.lammpstrj
-dump 3 all xyz 1000 final.xyz
+dump  3  all xyz 1000 final.xyz
 dump_modify 3 element Si Al B Ca O 
-dump 4 all custom 20000 elastic.txt.* id type x y z   
+dump  4  all custom 20000 elastic.txt.* id type x y z   
 
 
 fix 1 all nve
