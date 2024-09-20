@@ -11,7 +11,7 @@
             return;
         }
 
-        // 获取图片的文件名
+        // 获取图片的文件 名
         var imageName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
 
         // 创建 XMLHttpRequest 对象
