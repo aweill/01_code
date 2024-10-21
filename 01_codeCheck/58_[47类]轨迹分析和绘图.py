@@ -145,7 +145,7 @@ class Xyz():
         if self.allFirstLineList == [self.xyzDict[i][0] for i in range(1,self.xyzDict[0]+1)]:
             print("self.allFirstLineList == [self.xyzDict[i][0] for i in range(1,self.xyzDict[0]+1)]")
         
-        # self.periodicBox("1 -1 1 -1 1 -1","F")    # self.periodicBox(multiple,saveChoose),调用子方法中的全局变量前必须对子变量进行初始化
+        # self.periodicBox("1 -1 1 -1 1 -1","F")    # self.periodicBox(multiple,saveChoose),调用子方法中的全局变量前必须对子变量进行初始化，对于大体系极其耗时和占用内存
         # print(self.xyzSuperDict[2][400],self.xyzDict[2][15])
         print("该字典包含每一帧中各原子的xyz坐标，各分坐标以列表形式储存：",self.xyzDict)
         # 括增前后两个子字典值的区别，xyzSuperDict不仅包含扩增后的坐标，还包含扩增倍数，扩增前的原子序号和原子坐标
@@ -450,6 +450,7 @@ class Xyz():
         
     
     # 08方法：提取特定编号原子周围半径r范围内原子，该方法考虑了周期性，该方法使用了方法7中的全局环境变量
+    # 08方法相比于06方法，优点在于考虑了周期性，使得提取出来的局域结构不会缺少配位原子。缺点在于对于所有原子对设置了相同的截断半径，会提取球形区域内的所有原子，出现不感兴趣的配位原子种类。
     def periodicExtract(self,rCutoff,atomNumberRange):
         '''
         该方法依赖于方法7 self.periodicBox("1 -1 1 -1 1 -1","F") 中定义的扩增后的原子轨迹字典 self.xyzSuperDict
@@ -497,6 +498,8 @@ class Xyz():
 
 
     # 14方法：基于不同原子对截断半径，提取特定编号原子周围截断半径范围内原子，该方法考虑了周期性，该方法使用了方法7中的全局环境变量。通过给不同原子对设置截断半径，避免非设置的配位原子种类出现在局域配位结构中。
+    # 14方法相比于08方法，优点在于针对不同原子对设置了不同截断半径，提取的局域结构中不会出现不感兴趣的配位原子种类。缺点在于对于大体系计算时间长（1万原子体系需要约20小时），内存占用高。
+    # 14方法中，如果同一配位原子满足多个中心原子的截断半径要求，该配位原子在同一帧内可能会被重复写入。尽管不影响可视化效果，但不够优雅。
     def RijperiodicExtract(self,result,atomNumberRange):
         '''
         该方法依赖于方法7 self.periodicBox("1 -1 1 -1 1 -1","F") 中定义的扩增后的原子轨迹字典 self.xyzSuperDict
@@ -812,6 +815,8 @@ class Xyz():
 
 
     # 17 方法：提取特定编号原子周围半径r范围内原子，该方法考虑了周期性，针对大体系优化了算法，减少计算时间。相比于方法 14，未使用方法 7 的全局变量。
+    # 17方法相比于14方法，通过考虑配位原子在周期性扩增时相比于中心原子的空间分坐标变化特征来优化算法，并未实际调用07方法，因此计算速度快（1万原子体系约17分钟），内存占用相对较低。
+    # 17方法的缺点在于可视化时，部分边界处的配位原子未处于相应局域结构内，尽管考虑周期性边界条件后是属于截断半径内的。17方法在每一帧内不会重复写入配位原子坐标，即使该配位原子满足多个中心原子的截断半径要求。
     def localStructureExtract(self,result,atomNumberRange):
         '''
         该方法基于初始定义的 self.xyzDict 全局变量来计算。未使用 方法 7 引入的 self.xyzSuperDict 全局变量
@@ -915,6 +920,7 @@ class Xyz():
 
 
     # 18 方法：提取特定编号原子周围半径r范围内原子，该方法考虑了周期性，针对大体系优化了算法，减少计算时间。相比于方法 14，未使用方法 7 的全局变量。相比于方法17，对于盒子边界附近满足要求的配位原子，完整显示
+    # 相比于17方法，优点在于能够补全所有靠近边界处的局域结构中缺失的配位原子。
     def fullLocalStructureExtract(self,result,atomNumberRange):
         '''
         该方法基于初始定义的 self.xyzDict 全局变量来计算。未使用 方法 7 引入的 self.xyzSuperDict 全局变量
@@ -1240,6 +1246,7 @@ class Xyz():
 
 
     # 06方法：提取特定编号原子周围半径r范围内原子，该方法未考虑周期性
+    # 由于未考虑周期性，会出现提取出来的部分局域结构缺少配位原子，部分满足要求的配位原子未被提取
     def coorExtract(self,rCutoff,atomNumberRange):  # atomNumberRange为要提取的原子编号列表, rCutoff是原子对截断半径
         self.rCutoff = rCutoff                      # 将子方法中传入的参数初始化为全局变量
         self.atomNumberRange = atomNumberRange
